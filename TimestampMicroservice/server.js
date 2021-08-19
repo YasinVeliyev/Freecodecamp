@@ -24,19 +24,38 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-app.get("/api/2015-12-25", (req,res)=>{
-    res.json({
-        unix:Date.now(),
-        utc:new Date().toUTCString()
-    })
+// app.get("/api/2015-12-25", (req,res)=>{
+//     res.json({
+//         unix:Date(),
+//         utc:new Date().toUTCString()
+//     })
+// })
+
+app.get("/api/:date?", (req,res,next)=>{
+    let time = req.params.date
+    console.log(time)
+    if(!time){
+       return res.json({
+            unix:Date.now(),
+            utc:new Date().toUTCString()
+        }) 
+    }
+    if(time.match(/^[0-9]+$/g)){
+       return res.json({
+            unix:+time,
+            utc:new Date(+time).toUTCString()
+        })  
+    }
+   if(new Date(time).toString() === "Invalid Date"){
+       return res.json({ error : "Invalid Date" })
+   }
+
+    return res.json({
+            unix:Date.parse(time),
+            utc:new Date(time).toUTCString()
+        })
 })
 
-app.get("/api/:unix", (req,res)=>{
-    res.json({
-        unix:req.params.unix,
-        utc:new Date(req.params.unix*1000).toUTCString()
-    })
-})
 
 
 // listen for requests :)
